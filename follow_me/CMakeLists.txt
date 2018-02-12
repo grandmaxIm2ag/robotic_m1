@@ -110,6 +110,10 @@ include_directories(
 ## Declare a cpp executable
 add_executable(moving_persons_detector_node src/moving_persons_detector_node.cpp)
 add_executable(robot_moving_node src/robot_moving_node.cpp)
+add_executable(decision_node src/decision_node.cpp)
+add_executable(rotation_action_node src/rotation_action_node.cpp)
+add_executable(translation_action_node src/translation_action_node.cpp)
+add_executable(obstacle_detection_node src/obstacle_detection_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -120,6 +124,18 @@ target_link_libraries(moving_persons_detector_node
   ${catkin_LIBRARIES}
 )
 target_link_libraries(robot_moving_node
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(decision_node
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(rotation_action_node
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(translation_action_node
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(obstacle_detection_node
   ${catkin_LIBRARIES}
 )
 

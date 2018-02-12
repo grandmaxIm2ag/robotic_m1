@@ -120,15 +120,10 @@ void update() {
         cond_translation = ( fabs(error) > translation_error ) && !obstacle_detected;
         float translation_speed = 0;
         if ( cond_translation ) {
-            //TO COMPLETE
-            //Implementation of a PID controller for translation_to_do;
-            //rotation_speed = kp*error + ki * error + kp * error_derivation;
-
-            float error_derivation;//To complete
-            //ROS_INFO("error_derivaion: %f", error_derivation);
-
-            //error_integral = ...;//To complete
-            //ROS_INFO("error_integral: %f", error_integral);
+            error_integral += error;
+            float error_derivation = error - error_previous;
+            
+            ROS_INFO("error_derivaion: %f", error_derivation);
 
             //control of translation with a PID controller
             translation_speed = kp * error + ki * error_integral + kd * error_derivation;

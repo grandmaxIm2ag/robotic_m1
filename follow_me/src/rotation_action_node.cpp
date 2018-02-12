@@ -114,18 +114,16 @@ void update() {
 
         float rotation_speed = 0;
         if ( cond_rotation ) {
-            //TO COMPLETE
             //Implementation of a PID controller for rotation_to_do;
-            //rotation_speed = kp*error + ki * error + kp * error_derivation;
+            error_integral += rotation_error;
+            float error_derivation = rotation_error - error_previous; 
+            rotation_speed = kp*error + ki * error + kd * error_derivation;
 
-            float error_derivation;//To complete
-            //ROS_INFO("error_derivaion: %f", error_derivation);
+            ROS_INFO("error_derivaion: %f", error_derivation);
 
-            //error_integral = ...;//To complete
-            //ROS_INFO("error_integral: %f", error_integral);
+            ROS_INFO("error_integral: %f", error_integral);
 
             //control of rotation with a PID controller
-            rotation_speed = kp * error + ki * error_integral + kd * error_derivation;
             ROS_INFO("(rotation_action_node) current_orientation: %f, orientation_to_reach: %f -> rotation_speed: %f", rotation_done*180/M_PI, rotation_to_do*180/M_PI, rotation_speed*180/M_PI);
         }
         else {

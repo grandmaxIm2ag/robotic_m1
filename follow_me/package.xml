@@ -2,7 +2,7 @@
 <package>
   <name>follow_me</name>
   <version>0.0.0</version>
-  <description>follow_me behavior"</description>
+  <description>follow me for the course "Robotics and IoT"</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
