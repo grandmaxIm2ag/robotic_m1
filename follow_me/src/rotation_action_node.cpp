@@ -115,7 +115,7 @@ void update() {
         float rotation_speed = 0;
         if ( cond_rotation ) {
             //Implementation of a PID controller for rotation_to_do;
-            error_integral += rotation_error;
+            error_integral += error;
             float error_derivation = rotation_error - error_previous; 
             rotation_speed = kp*error + ki * error + kd * error_derivation;
 
