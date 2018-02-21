@@ -162,7 +162,9 @@ void detect_motion() {
 
     for (int loop=0; loop<nb_beams; loop++ ){//loop over all the hits
         //Compute distance d
-        float d = sqrt(pow(dynamic[loop]-range[loop], 2));
+        float x = background[loop] < 0 ? 0-background[loop] : background[loop];
+        float y = range[loop] < 0 ? 0-range[loop] : range[loop];
+        float d = x-y;
         if (d > detection_threshold){
             dynamic[loop] = 1;//the current hit is dynamic
         }else
@@ -304,7 +306,7 @@ void detect_moving_persons() {
                 float x1 = moving_leg_detected[loop_leg2].x;
                 float y1 = moving_leg_detected[loop_leg2].y;
                 moving_persons_detected[nb_moving_persons_detected].x=(x1+x2)/2;
-                moving_persons_detected[nb_moving_persons_detected++].y=(y1+y2)/2;
+                moving_persons_detected[nb_moving_persons_detected].y=(y1+y2)/2;
                 
                 // textual display
                 ROS_INFO("moving person detected[%i]: leg[%i]+leg[%i] -> (%f, %f)", nb_moving_persons_detected, loop_leg1, loop_leg2, moving_persons_detected[nb_moving_persons_detected].x, moving_persons_detected[nb_moving_persons_detected].y);
@@ -322,8 +324,10 @@ void detect_moving_persons() {
                 nb_pts++;
 
                 //update of the goal
-                goal_to_reach.x = moving_persons_detected[nb_moving_persons_detected-1].x;
-                goal_to_reach.y = moving_persons_detected[nb_moving_persons_detected-1].y; 
+                goal_to_reach.x = moving_persons_detected[nb_moving_persons_detected].x;
+                goal_to_reach.y = moving_persons_detected[nb_moving_persons_detected].y;
+
+                nb_moving_persons_detected--;
             }
         }
 
