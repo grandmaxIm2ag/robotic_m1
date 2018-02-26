@@ -19,7 +19,7 @@
 
 //used for detection of moving legs
 #define leg_size_min 0.05
-#define leg_size_max 0.25
+#define leg_size_max 0.30
 
 //used for detection of moving persons
 #define legs_distance_max 0.7
