@@ -24,6 +24,10 @@ using namespace std;
 class obstacle_detection {
 private:
     ros::NodeHandle n;
+    //Pour la réception de la position du robot
+    ros::Subscriber sub_robot;
+    //Pour la réception de l'ensemble des personnes détectées
+    ros::Subscriber sub_detect_person;
 public:
 
 obstacle_detection() {}
