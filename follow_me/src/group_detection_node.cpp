@@ -8,6 +8,7 @@
 #include "std_msgs/ColorRGBA.h"
 #include "std_msgs/Float32.h"
 #include "std_msgs/Int32.h"
+#include "std_msgs/Bool.h"
 #include <cmath>
 #include "nav_msgs/Odometry.h"
 #include <tf/transform_datatypes.h>
@@ -33,17 +34,17 @@ class group_detection {
 private:
     
     ros::NodeHandle n;
-    //Receive robot's position
-    ros::Subscriber sub_robot;
     //Receive the set of detected persons
     ros::Subscriber sub_detect_person;
+    //Receive robot moving
+    ros::Subscriber sub_robot_moving;
     //Publish goal_to_reach
     ros::Publisher pub_group_detector;
     //Publish display
     ros::Publisher pub_group_detector_marker;
     bool new_data;
-    bool current_robot_moving;
     bool new_goal;
+
     // GRAPHICAL DISPLAY
     int nb_pts;
     geometry_msgs::Point display[2000];
@@ -60,9 +61,30 @@ private:
     geometry_msgs::Point person_detected[1000];
     //Nb person detected
     int nb_person_detected;
-    
+    //to check if the robot is moving or not
+    bool new_robot;
+    bool previous_robot_moving;
+    bool current_robot_moving;
 public:
-    
+
+    group_detection(){
+        //Réception : Robot mouvant ou non
+        sub_robot_moving = n.subscribe("robot_moving", 1, &group_detection::robot_movingCallback, this);
+        //Réception du tableau de personne
+        sub_detect_person = n.subscribe("moving_persons_detector_array", 1,&group_detection::perso_callback, this );
+        pub_group_detector_marker = n.advertise<visualization_msgs::Marker>("group_detector", 1);
+        pub_group_detector = n.advertise<geometry_msgs::Point>("goal_to_reach", 1);
+
+        current_robot_moving = true;
+        new_robot = false;
+        new_goal = false;
+        ros::Rate r(10);
+        while (ros::ok()) {
+            ros::spinOnce();
+            update();
+            r.sleep();
+        }
+    }
     void perso_callback(const geometry_msgs::PoseArray::
                         ConstPtr& array){
         
@@ -152,86 +174,86 @@ public:
     }
 
     // Distance between two points
-float distancePoints(geometry_msgs::Point pa, geometry_msgs::Point pb) {
+    float distancePoints(geometry_msgs::Point pa, geometry_msgs::Point pb) {
 
-    return sqrt(pow((pa.x-pb.x),2.0) + pow((pa.y-pb.y),2.0));
+        return sqrt(pow((pa.x-pb.x),2.0) + pow((pa.y-pb.y),2.0));
 
-}
-
-// Draw the field of view and other references
-void populateMarkerReference() {
-
-    visualization_msgs::Marker references;
-
-    references.header.frame_id = "laser";
-    references.header.stamp = ros::Time::now();
-    references.ns = "example";
-    references.id = 1;
-    references.type = visualization_msgs::Marker::LINE_STRIP;
-    references.action = visualization_msgs::Marker::ADD;
-    references.pose.orientation.w = 1;
-
-    references.scale.x = 0.02;
-
-    references.color.r = 1.0f;
-    references.color.g = 1.0f;
-    references.color.b = 1.0f;
-    references.color.a = 1.0;
-    geometry_msgs::Point v;
-
-    v.x =  0.02 * cos(-2.356194);
-    v.y =  0.02 * sin(-2.356194);
-    v.z = 0.0;
-    references.points.push_back(v);
-
-    v.x =  5.6 * cos(-2.356194);
-    v.y =  5.6 * sin(-2.356194);
-    v.z = 0.0;
-    references.points.push_back(v);
-
-    float beam_angle = -2.356194 + 0.006136;
-    // first and last beam are already included
-    for (int i=0 ; i< 723; i++, beam_angle += 0.006136){
-        v.x =  5.6 * cos(beam_angle);
-        v.y =  5.6 * sin(beam_angle);
-        v.z = 0.0;
-        references.points.push_back(v);
     }
 
-    v.x =  5.6 * cos(2.092350);
-    v.y =  5.6 * sin(2.092350);
-    v.z = 0.0;
-    references.points.push_back(v);
+    // Draw the field of view and other references
+    void populateMarkerReference() {
 
-    v.x =  0.02 * cos(2.092350);
-    v.y =  0.02 * sin(2.092350);
-    v.z = 0.0;
-    references.points.push_back(v);
+        visualization_msgs::Marker references;
 
-    pub_group_detector_marker.publish(references);
+        references.header.frame_id = "laser";
+        references.header.stamp = ros::Time::now();
+        references.ns = "example";
+        references.id = 1;
+        references.type = visualization_msgs::Marker::LINE_STRIP;
+        references.action = visualization_msgs::Marker::ADD;
+        references.pose.orientation.w = 1;
 
-}
+        references.scale.x = 0.02;
 
-void populateMarkerTopic(){
+        references.color.r = 1.0f;
+        references.color.g = 1.0f;
+        references.color.b = 1.0f;
+        references.color.a = 1.0;
+        geometry_msgs::Point v;
 
-    visualization_msgs::Marker marker;
+        v.x =  0.02 * cos(-2.356194);
+        v.y =  0.02 * sin(-2.356194);
+        v.z = 0.0;
+        references.points.push_back(v);
 
-    marker.header.frame_id = "laser";
-    marker.header.stamp = ros::Time::now();
-    marker.ns = "example";
-    marker.id = 0;
-    marker.type = visualization_msgs::Marker::POINTS;
-    marker.action = visualization_msgs::Marker::ADD;
+        v.x =  5.6 * cos(-2.356194);
+        v.y =  5.6 * sin(-2.356194);
+        v.z = 0.0;
+        references.points.push_back(v);
 
-    marker.pose.orientation.w = 1;
+        float beam_angle = -2.356194 + 0.006136;
+        // first and last beam are already included
+        for (int i=0 ; i< 723; i++, beam_angle += 0.006136){
+            v.x =  5.6 * cos(beam_angle);
+            v.y =  5.6 * sin(beam_angle);
+            v.z = 0.0;
+            references.points.push_back(v);
+        }
 
-    marker.scale.x = 0.05;
-    marker.scale.y = 0.05;
+        v.x =  5.6 * cos(2.092350);
+        v.y =  5.6 * sin(2.092350);
+        v.z = 0.0;
+        references.points.push_back(v);
 
-    marker.color.a = 1.0;
+        v.x =  0.02 * cos(2.092350);
+        v.y =  0.02 * sin(2.092350);
+        v.z = 0.0;
+        references.points.push_back(v);
 
-    ROS_INFO("%i points to display", nb_pts);
-    for (int loop = 0; loop < nb_pts; loop++) {
+        pub_group_detector_marker.publish(references);
+
+    }
+
+    void populateMarkerTopic(){
+
+        visualization_msgs::Marker marker;
+
+        marker.header.frame_id = "laser";
+        marker.header.stamp = ros::Time::now();
+        marker.ns = "example";
+        marker.id = 0;
+        marker.type = visualization_msgs::Marker::POINTS;
+        marker.action = visualization_msgs::Marker::ADD;
+
+        marker.pose.orientation.w = 1;
+
+        marker.scale.x = 0.05;
+        marker.scale.y = 0.05;
+
+        marker.color.a = 1.0;
+
+        ROS_INFO("%i points to display", nb_pts);
+        for (int loop = 0; loop < nb_pts; loop++) {
             geometry_msgs::Point p;
             std_msgs::ColorRGBA c;
 
@@ -249,14 +271,27 @@ void populateMarkerTopic(){
             marker.colors.push_back(c);
         }
 
-    pub_group_detector_marker.publish(marker);
-    populateMarkerReference();
+        pub_group_detector_marker.publish(marker);
+        populateMarkerReference();
 
-}
+    }
 
+    void robot_movingCallback(const std_msgs::Bool::ConstPtr& state) {
+
+        new_robot = true;
+        ROS_INFO("New data of robot_moving received");
+        previous_robot_moving = current_robot_moving;
+        current_robot_moving = state->data;
+
+    }
 };
 
 int main(int argc, char **argv){
+    ros::init(argc, argv, "moving_persons_detector");
 
-    return 0;
+    group_detection bsObject;
+
+    ros::spin();
+
+
 }

@@ -64,10 +64,6 @@ private:
     int nb_moving_legs_detected;
     geometry_msgs::Point moving_leg_detected[1000];// to store the middle of each moving leg
 
-    //to perform detection of moving legs and to store them
-    int nb_group_detected;
-    geometry_msgs::Point group_detected[1000];// to store the middle of each group
-
     //to perform detection of moving person and store them
     int nb_moving_persons_detected;
     geometry_msgs::Point moving_persons_detected[1000];// to store the middle of each moving person
@@ -93,9 +89,11 @@ moving_persons_detector() {
     sub_scan = n.subscribe("scan", 1, &moving_persons_detector::scanCallback, this);
     sub_robot_moving = n.subscribe("robot_moving", 1, &moving_persons_detector::robot_movingCallback, this);
 
-    pub_moving_persons_detector_marker = n.advertise<visualization_msgs::Marker>("moving_persons_detector", 1); // Preparing a topic to publish our results. This will be used by the visualization tool rviz
-    pub_moving_persons_detector = n.advertise<geometry_msgs::Point>("goal_to_reach", 1);     // Preparing a topic to publish the goal to reach.
+    pub_moving_persons_detector_marker = n.advertise<visualization_msgs::Marker>("moving_persons_detector", 1);
 
+    //Topic pour l'envoie de tableau de personnes
+    pub_moving_persons_detector = n.advertise<visualization_msgs::Marker>("moving_persons_detector_array", 1);
+    
     current_robot_moving = true;
     new_laser = false;
     new_robot = false;
