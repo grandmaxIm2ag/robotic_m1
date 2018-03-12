@@ -298,69 +298,6 @@ void detect_moving_legs() {
 
 }//detect_moving_legs
 
-    // DETECTION OF MOVING PERSON
-/*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
-void detect_group() {
-// a moving leg is a cluster:
-// - with a size higher than "leg_size_min";
-// - with a size lower than "leg_size_max;
-// - more than "dynamic_threshold"% of its hits are dynamic (see, cluster_dynamic table)
-
-    ROS_INFO("detecting group");
-
-    int nb_group = 0;//to count the number of group
-
-    int group_start[1000];
-    int group_end[1000];
-    
-    //initialization of the first cluster
-    group_start[0] = 0;
-    group_end[0] = 0;
-
-    int loop;
-    for(loop = 1; loop < nb_moving_legs_detected; loop++) {
-        float d = distancePoints(moving_leg_detected[group_start[nb_group]],
-                                 moving_leg_detected[loop]);
-        if(d <= group_person_threshold){
-            group_end[nb_group]++;
-        }else{
-            nb_group++;
-            group_start[nb_group] = loop;
-            group_end[nb_group] = loop;
-        }
-    }
-
-    nb_group_detected = 0;
-    for(int i = 0; i< nb_group; i++) {
-        if(group_start[i] < group_end[i]){
-            float x1 = moving_leg_detected[group_start[i]].x;
-            float y1 = moving_leg_detected[group_start[i]].y;
-            float x2 = moving_leg_detected[group_end[i]].x;
-            float y2 = moving_leg_detected[group_end[i]].y;
-            geometry_msgs::Point m;
-            group_detected[i].x = (float)(x2+x1)/2;
-            group_detected[i].y = (float)(y2+y1)/2; 
-            
-            display[nb_pts].x = group_detected[nb_group_detected].x;
-            display[nb_pts].y = group_detected[nb_group_detected].y;
-            display[nb_pts].z = group_detected[nb_group_detected].z;
-
-            nb_group_detected++;
-            
-            colors[nb_pts].r = 0;
-            colors[nb_pts].g = 0;
-            colors[nb_pts].b = 0;
-            colors[nb_pts].a = 1.0;
-            nb_pts++;
-        }
-    }
-    
-    if ( nb_moving_legs_detected )
-        ROS_INFO("%d group have been detected.\n", nb_group_detected);
-
-}//detect_moving_legs
-
 void detect_moving_persons() {
 // a moving person has two moving legs located at less than "legs_distance_max" one from the other
 
