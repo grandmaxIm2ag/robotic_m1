@@ -19,30 +19,46 @@
 #include "message_filters/subscriber.h"
 #include "tf/message_filter.h"
 
+#include "std_msgs/MultiArrayLayout.h"
+#include "std_msgs/MultiArrayDimension.h"
+#include "std_msgs/Float32MultiArray.h"
+
 using namespace std;
 
-class obstacle_detection {
+class group_detection {
 private:
     ros::NodeHandle n;
-    //Pour la réception de la position du robot
+    
+    //Receive robot's position
     ros::Subscriber sub_robot;
-    //Pour la réception de l'ensemble des personnes détectées
+    //Receive the set of detected persons
     ros::Subscriber sub_detect_person;
+    //Publish goal_to_reach
+    ros::Publisher pub_moving_persons_detector;
+    //Publish display
+    ros::Publisher pub_group_detector_marker;
+
+    // GRAPHICAL DISPLAY
+    int nb_pts;
+    geometry_msgs::Point display[2000];
+    std_msgs::ColorRGBA colors[2000];
+    
+    //to store the goal to reach that we will be published
+    geometry_msgs::Point goal_to_reach;
+
+    //to perform detection of moving legs and to store them
+    int nb_group_detected;
+    // to store the middle of each group
+    geometry_msgs::Point group_detected[1000];
+    
 public:
 
-obstacle_detection() {}
-
-void update() {}
-
-// Distance between two points
-float distancePoints(geometry_msgs::Point pa, geometry_msgs::Point pb) {
-
-    return sqrt(pow((pa.x-pb.x),2.0) + pow((pa.y-pb.y),2.0));
-
-}
-
+    void perso_callback(const std_msgs::Float32MultiArray::
+                        ConstPtr& array){}
+    void position_callback(const geometry_msgs::Point::ConstPtr& g);
+    void update(){}
+    void detect_group(){}
 };
-
 
 int main(int argc, char **argv){
 
