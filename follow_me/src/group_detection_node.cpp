@@ -21,14 +21,17 @@
 
 #include "std_msgs/MultiArrayLayout.h"
 #include "std_msgs/MultiArrayDimension.h"
-#include "std_msgs/Float32MultiArray.h"
+#include "geometry_msgs/PoseArray.h"
+#include "geometry_msgs/Pose.h"
+
+#define COUNTOF(x) (sizeof(x)/sizeof(*x))
 
 using namespace std;
 
 class group_detection {
 private:
-    ros::NodeHandle n;
     
+    ros::NodeHandle n;
     //Receive robot's position
     ros::Subscriber sub_robot;
     //Receive the set of detected persons
@@ -50,11 +53,29 @@ private:
     int nb_group_detected;
     // to store the middle of each group
     geometry_msgs::Point group_detected[1000];
+    //Person detected
+    geometry_msgs::Point person_detected[1000];
+    //Nb person detected
+    int nb_person_detected;
     
 public:
 
-    void perso_callback(const std_msgs::Float32MultiArray::
-                        ConstPtr& array){}
+    template <typename T, std::size_t N>
+    std::size_t size(T const (&)[N])
+    {
+        return N;
+    }
+    
+    void perso_callback(const geometry_msgs::PoseArray::
+                        ConstPtr& array){
+        
+        /*nb_person_detected = COUNTOF(array);
+        for(int i=0; i<nb_person_detected; i++){
+            person_detected[i].x = array.poses[i].position.x;
+            person_detected[i].y = array.data.poses[i].position.y;
+        }*/
+        return;
+    }
     void position_callback(const geometry_msgs::Point::ConstPtr& g);
     void update(){}
     void detect_group(){}
